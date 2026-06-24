@@ -204,7 +204,7 @@ export class Server {
 			res.end();
 		});
 		const port = parseInt(process.env.PORT || process.env.WS_PORT || 8081);
-		server.listen(port, listenSocket => {
+		server.listen('0.0.0.0', port, listenSocket => {
 			this.listenSocket = listenSocket;
 			console.log(`Server listening on port ${port}`);
 		});
