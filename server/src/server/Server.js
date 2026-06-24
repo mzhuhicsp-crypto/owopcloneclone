@@ -172,7 +172,7 @@ export class Server {
 		this.createApiHandlers(server);
 
 		const __dirname = path.dirname(fileURLToPath(import.meta.url));
-		const staticDir = path.resolve(__dirname, '../../../../client/dist');
+		const staticDir = path.resolve(__dirname, '../../../client/dist');
 		const mimeTypes = {
 			'.html': 'text/html', '.js': 'application/javascript',
 			'.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg',
