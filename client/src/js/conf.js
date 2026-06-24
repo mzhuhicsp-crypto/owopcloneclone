@@ -37,7 +37,7 @@ export const options = PublicAPI.options = propertyDefaults(userOptions, {
 		default: true,
 		title: 'Official Server',
 		proto: 'v1',
-		url: location.hostname === 'localhost' ? `ws://localhost:8081` : location.href.replace("http", "ws").replace("8080", "8081"),
+		url: (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host,
 		// url: "ws://losercity.neomoth.dev/",
 	}],
 	fallbackFps: 30,

@@ -1,4 +1,7 @@
 import uWS from 'uWebSockets.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { ServerClientManager } from '../client/ServerClientManager.js';
 import { ServerIpManager } from '../ip/ServerIpManager.js';
 import { ServerWorldManager } from '../world/ServerWorldManager.js';
@@ -167,12 +170,43 @@ export class Server {
 			}
 		});
 		this.createApiHandlers(server);
+
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
+		const staticDir = path.resolve(__dirname, '../../../../client/dist');
+		const mimeTypes = {
+			'.html': 'text/html', '.js': 'application/javascript',
+			'.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg',
+			'.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+			'.mp3': 'audio/mpeg', '.woff': 'font/woff', '.woff2': 'font/woff2',
+			'.ttf': 'font/ttf', '.json': 'application/json',
+		};
+		server.get('/*', (res, req) => {
+			let urlPath = req.getUrl();
+			if (urlPath === '/' || !path.extname(urlPath)) urlPath = '/index.html';
+			const filePath = path.join(staticDir, urlPath);
+			try {
+				const data = fs.readFileSync(filePath);
+				const ext = path.extname(filePath);
+				res.writeHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+				res.end(data);
+			} catch {
+				try {
+					const data = fs.readFileSync(path.join(staticDir, 'index.html'));
+					res.writeHeader('Content-Type', 'text/html');
+					res.end(data);
+				} catch {
+					res.writeStatus('404 Not Found').end();
+				}
+			}
+		});
 		server.any('/*', (res, req) => {
 			res.writeStatus("400 Bad Request");
 			res.end();
 		});
-		server.listen(parseInt(process.env.WS_PORT), listenSocket => {
+		const port = parseInt(process.env.PORT || process.env.WS_PORT || 8081);
+		server.listen(port, listenSocket => {
 			this.listenSocket = listenSocket;
+			console.log(`Server listening on port ${port}`);
 		});
 		return server;
 	}

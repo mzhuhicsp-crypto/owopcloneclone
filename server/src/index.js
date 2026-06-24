@@ -27,5 +27,13 @@ process.on('SIGINT', async ()=>{
 	process.exit(0);
 });
 
-let config = JSON.parse(await fs.readFile("./config.json"));
+let config;
+try {
+	config = JSON.parse(await fs.readFile("./config.json"));
+} catch {
+	console.log("config.json not found, copying from config.json.example...");
+	const example = await fs.readFile("./config.json.example");
+	await fs.writeFile("./config.json", example);
+	config = JSON.parse(example);
+}
 let server = new Server(config);
